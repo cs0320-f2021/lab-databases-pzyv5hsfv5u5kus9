@@ -1,9 +1,11 @@
 package edu.brown.cs.student.main;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +36,30 @@ public class Database {
      * TODO: Initialize the database connection, turn foreign keys on,
      *  and then create the word and corpus tables if they do not exist.
      */
+    // this line loads the driver manager class, and must be
+    // present for everything else to work properly
+    Class.forName("org.sqlite.JDBC");
+    String urlToDB = "jdbc:sqlite:" + "data/data.sqlite3";
+    Connection conn = DriverManager.getConnection(urlToDB);
+    // these two lines tell the database to enforce foreign keys during operations, and should be present
+    Statement stat = conn.createStatement();
+    stat.executeUpdate("PRAGMA foreign_keys=ON;");
+    String createCorpus = "CREATE TABLE IF NOT EXISTS 'corpus'(" +
+        "'id' INTEGER, " +
+        "'filename' TEXT," +
+        "PRIMARY KEY ('id')," +
+        "ON DElETE CASCADE ON UPDATE CASCADE";
+    String createWord = "CREATE TABLE IF NOT EXISTS 'word'(" +
+        "'corpus_id' INTEGER," +
+        "'word' TEXT," +
+        "PRIMARY KEY ('corpus_id')," +
+        "FOREIGN KEY ('corpus_id') REFERENCES corpus(id)" +
+        "ON DElETE CASCADE ON UPDATE CASCADE";
+    PreparedStatement prep = conn.prepareStatement(createCorpus);
+    prep.executeUpdate();
+    prep = conn.prepareStatement(createWord);
+    prep.executeUpdate();
+    this.conn = conn;
   }
 
 
